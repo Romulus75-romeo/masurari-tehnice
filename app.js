@@ -193,6 +193,7 @@ const content = {
             },
             {
                 title: '📏 Șublere',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Vernier_caliper_scales.jpg/640px-Vernier_caliper_scales.jpg',
                 text: 'Cel mai răspândit instrument de măsurare în ateliere:',
                 items: [
                     'Construcție: riglă gradată + cursor mobil cu vernier (nonii)',
@@ -206,6 +207,7 @@ const content = {
             },
             {
                 title: '🎯 Micrometre',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Micrometer_0-25mm.jpg',
                 text: 'Instrumente de precizie pentru măsurători exacte:',
                 items: [
                     'Principiu: șurub micrometric (0.5mm/rotație pentru pas metric), tambur gradat 50 diviziuni → 0.01mm/diviziune',
@@ -221,6 +223,7 @@ const content = {
             },
             {
                 title: '⚙️ Comparatoare mecanice',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Dial_Indicator_Gauge.jpg/320px-Dial_Indicator_Gauge.jpg',
                 text: 'Instrumente de măsurare prin comparație cu etalon:',
                 items: [
                     'Comparator cu cadran: ac indicator pe cadran gradat, precizie 0.01mm sau 0.001mm',
@@ -660,6 +663,9 @@ function showSection(sectionId) {
           <div class="stat-item"><div class="stat-number">196</div><div class="stat-label">Ore/an</div></div>
           <div class="stat-item"><div class="stat-number">50+</div><div class="stat-label">Instrumente</div></div>
         </div>
+        <div style="margin-top:2rem">
+            <button class="btn btn-secondary" onclick="showWorksheets()">📄 Fișe de Lucru</button>
+        </div>
       </div>
       <div class="container">
         <h2>📚 Capitole Disponibile</h2>
@@ -716,9 +722,10 @@ function showSection(sectionId) {
              <button class="tts-btn" onclick="toggleTTS('${safeText}', this)">🔈 Ascultă Tot Capitolul</button>
         </div>
         <p style="font-size:1.1rem;margin-bottom:2rem;color:var(--text-secondary)">${chap.intro}</p>
-        ${chap.sections.map(sec => `
+        ${chap.sections.map((sec, idx) => `
           <div class="content-card">
             <h3>${sec.title}</h3>
+            ${sec.image ? `<div style="text-align:center;margin:1rem 0"><img src="${sec.image}" style="max-width:100%;border-radius:8px;box-shadow:var(--shadow-md)" alt="${sec.title}"></div>` : ''}
             <p>${sec.text}</p>
             <ul>${sec.items.map(item => `<li>${item}</li>`).join('')}</ul>
           </div>
@@ -1654,4 +1661,149 @@ function endSpeedTest() {
             <button class="btn btn-primary" onclick="startSpeedTest()">🔄 Încearcă din nou</button>
         </div>
     `);
+}
+
+// ========== WORKSHEETS IMPLEMENTATION ==========
+function showWorksheets() {
+    closeMenu();
+    showModal('📄 Fișe de Lucru Precompilate', `
+        <div class="worksheets-container">
+            <p style="margin-bottom:1rem;color:var(--text-secondary)">Fișe gata de printat pentru activități în atelier:</p>
+            
+            <div class="worksheet-card" onclick="openWorksheet('W1')">
+                <div class="ws-icon">📏</div>
+                <div class="ws-info">
+                    <h4>Fișa 1: Citirea Șublerului</h4>
+                    <p>Exerciții de citire 0.1mm și 0.05mm</p>
+                </div>
+                <div class="ws-action">🖨️</div>
+            </div>
+
+            <div class="worksheet-card" onclick="openWorksheet('W2')">
+                <div class="ws-icon">🎯</div>
+                <div class="ws-info">
+                    <h4>Fișa 2: Citirea Micrometrului</h4>
+                    <p>Exerciții de citire 0.01mm</p>
+                </div>
+                <div class="ws-action">🖨️</div>
+            </div>
+            
+            <div class="worksheet-card" onclick="openWorksheet('W3')">
+                <div class="ws-icon">⚠️</div>
+                <div class="ws-info">
+                    <h4>Fișa 3: Audit NSSM</h4>
+                    <p>Checklist verificare siguranța muncii</p>
+                </div>
+                <div class="ws-action">🖨️</div>
+            </div>
+        </div>
+    `);
+}
+
+function openWorksheet(id) {
+    let content = '';
+    let title = '';
+
+    if (id === 'W1') {
+        title = 'Fișa de Lucru nr. 1 - Șublerul';
+        content = `
+            <div class="print-paper">
+                <div class="print-header">
+                    <h2>FIȘA DE LUCRU NR. 1</h2>
+                    <p>Măsurarea cu Șublerul de Exterior/Interior</p>
+                    <div style="display:flex;justify-content:space-between;margin-top:1rem;border-bottom:2px solid #000">
+                        <span>Nume elev: ............................</span>
+                        <span>Data: ...................</span>
+                        <span>Nota: .....</span>
+                    </div>
+                </div>
+                <div class="print-body">
+                    <h3>1. Identificați părțile componente:</h3>
+                    <div style="height:100px;border:1px dashed #ccc;margin:1rem 0;display:flex;align-items:center;justify-content:center;color:#999">[Loc pentru desen șubler]</div>
+                    <p>a) ........................................ b) ........................................</p>
+                    
+                    <h3>2. Citiți valorile indicate:</h3>
+                    <p>Sarcina A: Măsurați diametrul exterior al piesei nr. 1.</p>
+                    <p>Valoarea citită: ................. mm</p>
+                    
+                    <h3>3. Aplicație practică:</h3>
+                    <p>Realizați 5 măsurători consecutive pe aceeași piesă și calculați media.</p>
+                    <table class="print-table">
+                        <tr><th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>Media</th></tr>
+                        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </table>
+                </div>
+                <div class="print-footer">
+                    <p>Profesor: Popescu Romulus | Liceul Tehnologic "Aurel Vlaicu"</p>
+                </div>
+            </div>
+            <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+        `;
+    } else if (id === 'W2') {
+        title = 'Fișa de Lucru nr. 2 - Micrometrul';
+        content = `
+            <div class="print-paper">
+                <div class="print-header">
+                    <h2>FIȘA DE LUCRU NR. 2</h2>
+                    <p>Măsurarea de Precizie cu Micrometrul</p>
+                    <div style="display:flex;justify-content:space-between;margin-top:1rem;border-bottom:2px solid #000">
+                        <span>Nume elev: ............................</span>
+                        <span>Data: ...................</span>
+                    </div>
+                </div>
+                <div class="print-body">
+                    <h3>1. Reguli de utilizare:</h3>
+                    <p>Enumerați 3 reguli de protecție a micrometrului:</p>
+                    <ol>
+                        <li>................................................................</li>
+                        <li>................................................................</li>
+                        <li>................................................................</li>
+                    </ol>
+                    
+                    <h3>2. Exercițiu citire (0.01mm):</h3>
+                    <p>Tub fix: 15.5mm | Tambur: diviziunea 32. Valoarea = .................</p>
+                </div>
+            </div>
+            <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+         `;
+    } else {
+        title = 'Fișa de Lucru nr. 3 - NSSM';
+        content = `
+             <div class="print-paper">
+                <h2>Checklist Audit NSSM</h2>
+                <ul class="checklist">
+                    <li>[ ] Echipament de protecție purtat corect</li>
+                    <li>[ ] Instrumente curate și calibrate</li>
+                    <li>[ ] Iluminare corespunzătoare la bancul de lucru</li>
+                    <li>[ ] Nu există piese în mișcare neprotejate</li>
+                </ul>
+             </div>
+             <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+        `;
+    }
+
+    // Open in new window for printing
+    const w = window.open('', '_blank');
+    w.document.write(`
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; background: #f0f0f0; padding: 2rem; }
+                .print-paper { background: white; padding: 2cm; max-width: 21cm; margin: 0 auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 4px; }
+                .print-header { text-align: center; margin-bottom: 2rem; }
+                .print-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+                .print-table th, .print-table td { border: 1px solid black; padding: 0.5rem; text-align: center; }
+                .btn { display: block; padding: 1rem; background: #4f46e5; color: white; text-align: center; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 1.1rem; }
+                @media print {
+                    body { background: white; padding: 0; }
+                    .print-paper { box-shadow: none; padding: 0; margin: 0; width: 100%; max-width: none; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>${content}</body>
+        </html>
+    `);
+    w.document.close();
 }
