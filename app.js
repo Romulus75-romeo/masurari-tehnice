@@ -1737,7 +1737,10 @@ function openWorksheet(id) {
                     <p>Profesor: Popescu Romulus | Liceul Tehnologic "Aurel Vlaicu"</p>
                 </div>
             </div>
-            <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+            <div class="no-print" style="margin-top:1rem;display:flex;gap:1rem">
+                <button class="btn btn-primary" onclick="window.print()" style="flex:1">🖨️ Printează Fișa</button>
+                <button class="btn btn-secondary" onclick="window.close()" style="flex:1;background:#64748b">❌ Închide Fereastra</button>
+            </div>
         `;
     } else if (id === 'W2') {
         title = 'Fișa de Lucru nr. 2 - Micrometrul';
@@ -1764,7 +1767,10 @@ function openWorksheet(id) {
                     <p>Tub fix: 15.5mm | Tambur: diviziunea 32. Valoarea = .................</p>
                 </div>
             </div>
-            <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+            <div class="no-print" style="margin-top:1rem;display:flex;gap:1rem">
+                <button class="btn btn-primary" onclick="window.print()" style="flex:1">🖨️ Printează Fișa</button>
+                <button class="btn btn-secondary" onclick="window.close()" style="flex:1;background:#64748b">❌ Închide Fereastra</button>
+            </div>
          `;
     } else {
         title = 'Fișa de Lucru nr. 3 - NSSM';
@@ -1778,7 +1784,10 @@ function openWorksheet(id) {
                     <li>[ ] Nu există piese în mișcare neprotejate</li>
                 </ul>
              </div>
-             <button class="btn btn-primary no-print" onclick="window.print()" style="margin-top:1rem;width:100%">🖨️ Printează Fișa</button>
+             <div class="no-print" style="margin-top:1rem;display:flex;gap:1rem">
+                <button class="btn btn-primary" onclick="window.print()" style="flex:1">🖨️ Printează Fișa</button>
+                <button class="btn btn-secondary" onclick="window.close()" style="flex:1;background:#64748b">❌ Închide Fereastra</button>
+            </div>
         `;
     }
 
