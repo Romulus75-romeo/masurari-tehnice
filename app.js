@@ -979,24 +979,124 @@ function showStats() {
     `);
 }
 
-function generateCertificate() {
-    alert('Certificate în dezvoltare');
-    closeMenu();
-}
+// ========== ADVANCED FEATURES ==========
 
 function startQuickQuiz() {
-    alert('Quiz Rapid în dezvoltare');
     closeMenu();
+    // Gather all questions
+    const allQuestions = [];
+    Object.values(tests).forEach(t => allQuestions.push(...t.questions));
+
+    // Shuffle and pick 10
+    const selected = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+    // Create virtual test
+    tests['quick'] = {
+        title: '⚡ Quiz Rapid',
+        questions: selected
+    };
+
+    startTest('quick');
 }
 
 function startFinalExam() {
-    alert('Examen Final în dezvoltare');
     closeMenu();
+    // Gather 3 questions from each chapter
+    const examQuestions = [];
+    Object.values(tests).forEach(t => {
+        if (t.title.includes('Quiz') || t.title.includes('Examen')) return; // Skip virtual tests
+        const chapterQs = [...t.questions].sort(() => 0.5 - Math.random()).slice(0, 3);
+        examQuestions.push(...chapterQs);
+    });
+
+    // Shuffle final set
+    examQuestions.sort(() => 0.5 - Math.random());
+
+    tests['final'] = {
+        title: '🎓 Examen Final',
+        questions: examQuestions
+    };
+
+    startTest('final');
+}
+
+function generateCertificate() {
+    closeMenu();
+    // Check requirements
+    const chaptersPassed = Object.values(userProgress.tests).filter(s => s >= 80).length;
+    const finalExamScore = userProgress.tests['final'] || 0;
+
+    if (chaptersPassed < 10 || finalExamScore < 80) { // Requirement: 10 chapters + Final Exam
+        alert('Pentru a genera certificatul trebuie să promovezi toate capitolele și examenul final (min 80%)!');
+        return;
+    }
+
+    const date = new Date().toLocaleDateString('ro-RO');
+    const name = prompt("Introduceți numele complet pentru certificat:", "Elev");
+    if (!name) return;
+
+    showModal('📜 Certificat de Absolvire', `
+        <div class="certificate-container" id="printableCertificate">
+            <div class="cert-header">CERTIFICAT DE ABSOLVIRE</div>
+            <p>Se acordă elevului/elevei</p>
+            <h2 class="cert-name">${name}</h2>
+            <p>Pentru promovarea cu succes a modulului</p>
+            <h3 class="cert-course">M1 - Măsurări Tehnice</h3>
+            <p>Calificarea: Sudor</p>
+            <div class="cert-details">
+                <span>Data: ${date}</span>
+                <span>Calificativ: Excelent</span>
+            </div>
+            <div class="cert-footer">
+                <div>Profesor<br>Ing. Popescu Romulus</div>
+                <div>Director<br>Prof. Ing. Silviana Ciupercă</div>
+            </div>
+            <div class="cert-stamp">Liceul Tehnologic "Aurel Vlaicu" Galați</div>
+        </div>
+        <button class="btn btn-primary" onclick="window.print()" style="margin-top:1rem; width:100%">🖨️ Printează Certificatul</button>
+    `);
 }
 
 function showTeacherDashboard() {
-    alert('Panou Profesor în dezvoltare');
     closeMenu();
+    const pin = prompt("Introduceți PIN Profesor:");
+    if (pin !== "0000") {
+        alert("PIN Incorect!");
+        return;
+    }
+
+    const passedTests = Object.values(userProgress.tests).filter(s => s >= 80).length;
+
+    showModal('🔐 Panou Profesor', `
+        <table style="width:100%; text-align:left; border-collapse: collapse;">
+            <tr><th>Elev (Local)</th><th>Progres</th><th>Acțiuni</th></tr>
+            <tr>
+                <td>Utilizator Curent</td>
+                <td>${passedTests}/10 Capitole</td>
+                <td><button class="btn btn-danger btn-sm" onclick="resetProgress()">Reset</button></td>
+            </tr>
+        </table>
+        <hr>
+        <h4>🛠️ Unelte Administrare</h4>
+        <button class="btn btn-secondary" onclick="exportData()">💾 Export Situație (JSON)</button>
+    `);
+}
+
+function resetProgress() {
+    if (confirm('Sigur doriți să ștergeți tot progresul?')) {
+        localStorage.removeItem('userProgress');
+        location.reload();
+    }
+}
+
+function exportData() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userProgress));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "progres_elev.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
 }
 
 // ========== INITIALIZATION ==========
