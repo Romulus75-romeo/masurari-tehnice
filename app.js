@@ -1093,7 +1093,7 @@ function generateCertificate() {
 function showTeacherDashboard() {
     closeMenu();
     const pin = prompt("Introduceți PIN Profesor:");
-    if (pin !== "0000") {
+    if (pin !== "profesor2025") {
         alert("PIN Incorect!");
         return;
     }
