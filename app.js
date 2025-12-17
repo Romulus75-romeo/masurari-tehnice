@@ -32,7 +32,7 @@ const chapters = [
     { id: 'c3-2', icon: '📐', title: '3.2 Unghiuri', desc: 'Goniometre, echere, raportoare', hours: '2T + 4IP' },
     { id: 'c3-3', icon: '🔲', title: '3.3 Suprafețe', desc: 'Planitate, drepte de referință', hours: '1T + 4IP' },
     { id: 'c3-4', icon: '⚙️', title: '3.4 Mărimi Mecanice', desc: 'Forțe, mase, presiuni, viteze', hours: '5T + 16IP' },
-    { id: 'c3-5', icon: '🌡️', title: '3.5 Temperatură', desc: 'Termometre, termocuple, termor', hours: '2T + 8IP' },
+    { id: 'c3-5', icon: '🌡️', title: '3.5 Temperatură', desc: 'Termometre, termocuple, termorezistențe', hours: '2T + 8IP' },
     { id: 'c3-6', icon: '🔩', title: '3.6 Filete', desc: 'Calibre, micrometru filete', hours: '5T + 16IP' },
     { id: 'c3-7', icon: '⚙️', title: '3.7 Roți Dințate', desc: 'Șubler roți dințate, șabloane', hours: '4T + 12IP' },
     { id: 'c3-8', icon: '⚡', title: '3.8 Mărimi Electrice', desc: 'Multimetre, ampermetre, voltmetre', hours: '8T + 28IP' }
@@ -192,7 +192,7 @@ const content = {
                 ]
             },
             {
-                title: '📏 Șublere (Șubiere)',
+                title: '📏 Șublere',
                 text: 'Cel mai răspândit instrument de măsurare în ateliere:',
                 items: [
                     'Construcție: riglă gradată + cursor mobil cu vernier (nonii)',
@@ -225,7 +225,7 @@ const content = {
                 items: [
                     'Comparator cu cadran: ac indicator pe cadran gradat, precizie 0.01mm sau 0.001mm',
                     'Principiu: palpator→ pinioane→ cremalieră→ ac indicator (amplificare mecanică 100-1000×)',
-                    'Gameă măsurare: ±0.5mm, ±1mm, ±5mm, ±10mm',
+                    'Gamă măsurare: ±0.5mm, ±1mm, ±5mm, ±10mm',
                     'Utilizare: montare pe suport magnetic sau stativ, aducere ac pe 0 cu etalonul, măsurare diferențe față de etalon',
                     'Avantaje: precizie mare, citire rapidă, ideal pentru producție serie',
                     'Comparator de interior (minitester, alezometru): verificare alezaje cu precizie 0.01mm',
@@ -242,7 +242,7 @@ const content = {
                     'Proiectoare de profil: proiectează conturul piesei mărit 10× - 100×, verificare profil filete, roți dințate',
                     'Microscoape de atelier: măsurare dimensiuni mici (sub 10mm) cu precizie 0.005mm, vizualizare detalii structură',
                     'Microscoape universale: masă de măsurare cu deplasări micrometrice pe 2 axe (X, Y), măsurare coordonate, unghiuri, precizie 0.002mm',
-                    'Avantaje: precizie extr emă, măsurare piese mici, verificare forme complexe',
+                    'Avantaje: precizie extremă, măsurare piese mici, verificare forme complexe',
                     'Dezavantaje: costisitoare, manipulare delicată, timp măsurare mai lung'
                 ]
             }
@@ -252,7 +252,7 @@ const content = {
 
     'c3-2': {
         title: '3.2 Măsurarea și Controlul Unghiurilor',
-        intro: 'Precizia unghiulară este esențială pentru piese conice, șanfrenuri, scule așch ietoare. Erorile unghiulare se măsoară în grade, minute (1°=60\'),  secunde (1\'=60").',
+        intro: 'Precizia unghiulară este esențială pentru piese conice, șanfrenuri, scule așchietoare. Erorile unghiulare se măsoară în grade, minute (1°=60\'),  secunde (1\'=60").',
         sections: [
             {
                 title: '📐 Unități de măsură unghiuri',
@@ -376,7 +376,7 @@ const content = {
                 items: [
                     'Micrometru filete: vârfuri profilate 60°, măsoară direct d2',
                     'Metoda 3 sârme: calcul d2 din măsurare peste sârme calibrate',
-                    'Precizie: 0.01mm, pentru călibrare calibre'
+                    'Precizie: 0.01mm, pentru calibrare calibre'
                 ]
             }
         ],
@@ -480,7 +480,7 @@ const content = {
                 ]
             },
             {
-                title: '⚠️⚠️⚠️ NSSM ELECTRONI SPECIFICE - OBLIGATORII!',
+                title: '⚠️⚠️⚠️ NSSM ELECTRICE SPECIFICE - OBLIGATORII!',
                 text: 'REGULI DE SIGURANȚĂ VITALE:',
                 items: ['🚫 NICIODATĂ tensiune cu multimetru pe A!',
                     '🔌 ÎNTOTDEAUNA deconectați sursa pentru măsurare Ω',
@@ -578,7 +578,7 @@ const tests = {
     'c3-1': {
         title: 'Test: Dimensiuni Liniare', questions: [
             { q: 'Precizia unui șubler cu vernier 10 diviziuni este:', a: ['1mm', '0.1mm', '0.01mm', '0.001mm'], c: 1 },
-            { q: 'Princi piul micrometrului se bazează pe:', a: ['Vernier', 'Șurub micrometric', 'Comparație', 'Optică'], c: 1 },
+            { q: 'Principiul micrometrului se bazează pe:', a: ['Vernier', 'Șurub micrometric', 'Comparație', 'Optică'], c: 1 },
             { q: 'La micrometru standard, o rotație completă a tamburului reprezintă:', a: ['1mm', '0.5mm', '0.1mm', '0.01mm'], c: 1 },
             { q: 'Precizia standard a micrometrului este:', a: ['0.1mm', '0.05mm', '0.01mm', '0.001mm'], c: 2 },
             { q: 'Comparatorul cu cadran măsoară:', a: ['Valori absolute', 'Diferențe față de etalon', 'Unghiuri', 'Temperaturi'], c: 1 },
@@ -618,7 +618,7 @@ const tests = {
         title: 'Test: Filete', questions: [
             { q: 'Unghiul profilului pentru filetul metric este:', a: ['29°', '55°', '60°', '90°'], c: 2 },
             { q: 'Cel mai important diametru pentru îmbinarea filetată este:', a: ['Diametrul exterior', 'Diametrul mediu', 'Diametrul interior', 'Pasul'], c: 1 },
-            { q: 'Calibrul TRECE verifică:', a: ['Dimensiuni minime', 'Dimensiuni maxime admise', 'Pasul', 'Ungh iul'], c: 1 },
+            { q: 'Calibrul TRECE verifică:', a: ['Dimensiuni minime', 'Dimensiuni maxime admise', 'Pasul', 'Unghiul'], c: 1 },
             { q: 'Metoda celor 3 sârme servește la măsurarea:', a: ['Pasului', 'Diametrului mediu', 'Unghiului profilului', 'Lungimii filetului'], c: 1 }
         ]
     },
