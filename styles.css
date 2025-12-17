@@ -617,3 +617,233 @@ body::before {
         grid-template-columns: 1fr
     }
 }
+
+/* ========== MODALS & NEW FEATURES ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background: var(--surface);
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface-hover);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--primary);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+/* Glossary */
+.glossary-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.glossary-item:last-child {
+    border-bottom: none;
+}
+
+.glossary-item strong {
+    color: var(--primary);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Search */
+.search-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--background);
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.search-hit {
+    padding: 0.75rem;
+    background: var(--surface-hover);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.search-hit:hover {
+    transform: translateX(5px);
+    background: var(--border);
+}
+
+.hit-type {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+.hit-title {
+    font-weight: bold;
+    margin: 0.2rem 0;
+}
+
+.hit-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Medals */
+.medals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.medal-card {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--surface-hover);
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.medal-card.unlocked {
+    opacity: 1;
+    filter: grayscale(0);
+    border-color: var(--primary);
+    background: rgba(79, 70, 229, 0.1);
+}
+
+.medal-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.medal-title {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.medal-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Stats */
+.stats-container {
+    text-align: center;
+}
+
+.stat-big {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface-hover);
+    border-radius: 1rem;
+}
+
+.stat-val {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1.5rem;
+}
+
+.prog-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.prog-row span:first-child {
+    width: 50px;
+    font-weight: bold;
+}
+
+.prog-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 10px;
+    overflow: hidden;
+}
+
+.prog-bar-fill {
+    height: 100%;
+    background: var(--success);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

@@ -6,6 +6,24 @@ let userAnswers = [];
 let soundEnabled = true;
 let darkMode = false;
 
+// ========== PERSISTENT STATE ==========
+let userProgress = {
+    tests: {}, // { 'c1': 85, 'c2': 100 }
+    finalExam: null,
+    medals: [],
+    startTime: Date.now()
+};
+
+// Load progress
+const savedProgress = localStorage.getItem('userProgress');
+if (savedProgress) {
+    userProgress = JSON.parse(savedProgress);
+}
+
+function saveProgress() {
+    localStorage.setItem('userProgress', JSON.stringify(userProgress));
+}
+
 // ========== CHAPTERS DATA ==========
 const chapters = [
     { id: 'c1', icon: '📊', title: '1. Noțiuni Fundamentale', desc: 'Teoria măsurătorilor, SI, erori', hours: '3T + 6IP' },
@@ -480,6 +498,27 @@ const content = {
     }
 };
 
+// ========== GLOSSARY DATA ==========
+const glossaryData = [
+    { term: 'Abatere', def: 'Diferența algebrică între o dimensiune (reală sau limită) și dimensiunea nominală corespunzătoare.' },
+    { term: 'Alezaj', def: 'Termen general pentru suprafața interioară (gaura) a unei piese, de obicei cilindrică.' },
+    { term: 'Ajustaj', def: 'Relația rezultată din diferența dimensiunilor înainte de asamblare a două piese (arbore și alezaj).' },
+    { term: 'Arbore', def: 'Termen general pentru suprafața exterioară a unei piese, de obicei cilindrică.' },
+    { term: 'Calibrare', def: 'Ansamblul operațiilor care stabilesc legătura dintre valorile indicate de un aparat și valorile etalon.' },
+    { term: 'Comparator', def: 'Instrument care măsoară abaterile dimensiunilor față de un etalon, nu dimensiunea absolută.' },
+    { term: 'Dimensiune nominală (Dn)', def: 'Dimensiunea față de care se definesc dimensiunile limită (din desenul tehnic).' },
+    { term: 'Eroare absolută', def: 'Diferența dintre valoarea măsurată și valoarea reală a măsurandului.' },
+    { term: 'Goniometru', def: 'Instrument pentru măsurarea unghiurilor.' },
+    { term: 'Micrometru', def: 'Instrument de măsurare de precizie (0.01mm) bazat pe sistemul șurub-piuliță.' },
+    { term: 'Modul (m)', def: 'Mărime caracteristică a roților dințate (m = D/z).' },
+    { term: 'NSSM', def: 'Norme Specifice de Securitate și Sănătate în Muncă.' },
+    { term: 'Pas (P)', def: 'Distanța dintre două puncte omoloage consecutive (la filete sau roți dințate).' },
+    { term: 'Rugozitate', def: 'Ansamblul neregularităților (asperităților) de pe o suprafață prelucrată.' },
+    { term: 'Șubler', def: 'Instrument de măsurare lungimi cu vernier (precizie 0.1 sau 0.05mm).' },
+    { term: 'Toleranță (T)', def: 'Diferența dintre dimensiunea maximă și minimă admisă.' },
+    { term: 'Vernier', def: 'Scară gradată ajutătoare care permite citirea fracțiunilor de diviziune.' }
+];
+
 // ========== QUIZ DATA FOR EACH CHAPTER ==========
 const tests = {
     'c1': {
@@ -723,6 +762,13 @@ function showResults() {
     });
     const percentage = Math.round((score / test.questions.length) * 100);
 
+    // Save Result
+    if (!userProgress.tests[currentTest] || percentage > userProgress.tests[currentTest]) {
+        userProgress.tests[currentTest] = percentage;
+        saveProgress();
+        checkMedals();
+    }
+
     const main = document.getElementById('mainContent');
     main.innerHTML = `
     <div class="container text-center">
@@ -771,24 +817,166 @@ function toggleSound() {
     document.getElementById('soundBtn').textContent = soundEnabled ? '🔊 Sunet: Pornit' : '🔇 Sunet: Oprit';
 }
 
+
+
+// ========== NEW FEATURES IMPLEMENTATION ==========
+
+function showModal(title, contentHTML) {
+    const main = document.getElementById('mainContent');
+    const existingModal = document.querySelector('.modal-overlay');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${title}</h3>
+                <button class="btn-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+            </div>
+            <div class="modal-body">${contentHTML}</div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 function showGlossary() {
-    alert('Glosar în dezvoltare');
     closeMenu();
+    const list = glossaryData.map(item => `
+        <div class="glossary-item">
+            <strong>${item.term}</strong>
+            <p>${item.def}</p>
+        </div>
+    `).join('');
+    showModal('📖 Glosar Termeni', `<div class="glossary-list">${list}</div>`);
 }
 
 function openSearch() {
-    alert('Căutare în dezvoltare');
     closeMenu();
+    showModal('🔍 Căutare', `
+        <input type="text" id="searchInput" placeholder="Caută termeni, capitole..." class="search-input" onkeyup="performSearch()">
+        <div id="searchResults" class="search-results"></div>
+    `);
+    setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+
+function performSearch() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const resultsDiv = document.getElementById('searchResults');
+
+    if (query.length < 3) {
+        resultsDiv.innerHTML = '<p class="text-muted">Introduceți minim 3 litere...</p>';
+        return;
+    }
+
+    let hits = [];
+
+    // Search in Glossary
+    glossaryData.forEach(g => {
+        if (g.term.toLowerCase().includes(query) || g.def.toLowerCase().includes(query)) {
+            hits.push({ type: '📖 Glosar', title: g.term, subtitle: g.def, action: `showGlossary()` }); // Simplified action
+        }
+    });
+
+    // Search in Chapters
+    chapters.forEach(ch => {
+        if (ch.title.toLowerCase().includes(query) || ch.desc.toLowerCase().includes(query)) {
+            hits.push({ type: '📚 Capitol', title: ch.title, subtitle: ch.desc, action: `showSection('${ch.id}'); document.querySelector('.modal-overlay').remove()` });
+        }
+    });
+
+    if (hits.length === 0) {
+        resultsDiv.innerHTML = '<p>Niciun rezultat găsit.</p>';
+    } else {
+        resultsDiv.innerHTML = hits.map(hit => `
+            <div class="search-hit" onclick="${hit.action}">
+                <span class="hit-type">${hit.type}</span>
+                <div class="hit-title">${hit.title}</div>
+                <div class="hit-subtitle">${hit.subtitle}</div>
+            </div>
+        `).join('');
+    }
+}
+
+function checkMedals() {
+    const newMedals = [];
+    const passedTests = Object.values(userProgress.tests).filter(s => s >= 80).length;
+    const totalChapters = chapters.length;
+
+    if (passedTests >= 1 && !userProgress.medals.includes('bronze')) newMedals.push('bronze');
+    if (passedTests >= 5 && !userProgress.medals.includes('silver')) newMedals.push('silver');
+    if (passedTests === totalChapters && !userProgress.medals.includes('gold')) newMedals.push('gold');
+    if (userProgress.finalExam >= 80 && !userProgress.medals.includes('platinum')) newMedals.push('platinum');
+
+    if (newMedals.length > 0) {
+        userProgress.medals.push(...newMedals);
+        saveProgress();
+        // Optional: Show prompt "New Medal Unlocked!"
+        alert(`🎉 Felicitări! Ai deblocat o medalie nouă!`);
+    }
 }
 
 function showMedals() {
-    alert('Medalii în dezvoltare');
     closeMenu();
+    const medalsConfig = {
+        'bronze': { icon: '🥉', title: 'Începător', desc: 'Promovează primul test' },
+        'silver': { icon: '🥈', title: 'Avansat', desc: 'Promovează 5 teste' },
+        'gold': { icon: '🥇', title: 'Expert', desc: 'Promovează toate cele 10 teste' },
+        'platinum': { icon: '🏆', title: 'Maestru', desc: 'Promovează examenul final' }
+    };
+
+    const grid = Object.entries(medalsConfig).map(([key, info]) => {
+        const unlocked = userProgress.medals.includes(key);
+        return `
+            <div class="medal-card ${unlocked ? 'unlocked' : 'locked'}">
+                <div class="medal-icon">${info.icon}</div>
+                <div class="medal-title">${info.title}</div>
+                <div class="medal-desc">${info.desc}</div>
+                ${unlocked ? '<span class="status-badge">Deblocat</span>' : '<span class="status-badge locked">Blocat</span>'}
+            </div>
+        `;
+    }).join('');
+
+    showModal('🏅 Medalii & Realizări', `<div class="medals-grid">${grid}</div>`);
 }
 
 function showStats() {
-    alert('Statistici în dezvoltare');
     closeMenu();
+    const passedTests = Object.values(userProgress.tests).filter(s => s >= 80).length;
+    const totalScore = Object.values(userProgress.tests).reduce((a, b) => a + b, 0);
+    const avgScore = passedTests > 0 ? Math.round(totalScore / Object.keys(userProgress.tests).length) : 0;
+
+    showModal('📊 Statistici Progres', `
+        <div class="stats-container">
+            <div class="stat-big">
+                <div class="stat-val">${passedTests} / 10</div>
+                <div class="stat-lbl">Capitole Promovate</div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <b>${avgScore}%</b> Medie Scor
+                </div>
+                <div class="stat-item">
+                    <b>${userProgress.medals.length}</b> Medalii
+                </div>
+            </div>
+            <hr>
+            <h4>Detaliu pe Capitole:</h4>
+            <div class="chapters-progress-list">
+                ${chapters.map(ch => {
+        const score = userProgress.tests[ch.id] || 0;
+        return `
+                        <div class="prog-row">
+                            <span>${ch.id.toUpperCase()}</span>
+                            <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${score}%"></div></div>
+                            <span>${score}%</span>
+                        </div>
+                    `;
+    }).join('')}
+            </div>
+        </div>
+    `);
 }
 
 function generateCertificate() {
@@ -820,7 +1008,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Show home page
     showSection('home');
 
-    // Update online/offline status
+    // Initial check for loading saved state is done globally
+
     window.addEventListener('online', () => {
         document.getElementById('offlineStatus').innerHTML = '🟢 Online';
     });
