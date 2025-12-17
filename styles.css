@@ -1131,10 +1131,13 @@ body::before {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-weight: 600;
 }
 
 .tts-btn:hover {
     background: rgba(79, 70, 229, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .tts-btn.active {

@@ -697,20 +697,27 @@ function showSection(sectionId) {
       </div>
     `;
     } else if (content[sectionId]) {
-        const chap = content[sectionId];
+        // Construct full text for TTS
+        let fullText = `${chap.title}. ${chap.intro}. `;
+        chap.sections.forEach(sec => {
+            fullText += `${sec.title}. ${sec.text}. `;
+            if (sec.items && sec.items.length > 0) {
+                fullText += `Elemente: ${sec.items.join(', ')}. `;
+            }
+        });
+        // Escape for JS string
+        const safeText = fullText.replace(/'/g, "\\'").replace(/\n/g, " ").replace(/"/g, '\\"');
+
         main.innerHTML = `
       <div class="container">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
              <h2>${chap.title}</h2>
-             <button class="tts-btn" onclick="toggleTTS('${chap.intro.replace(/'/g, "\\'").replace(/\n/g, " ")}', this)">🔈 Ascultă Intro</button>
+             <button class="tts-btn" onclick="toggleTTS('${safeText}', this)">🔈 Ascultă Tot Capitolul</button>
         </div>
         <p style="font-size:1.1rem;margin-bottom:2rem;color:var(--text-secondary)">${chap.intro}</p>
         ${chap.sections.map(sec => `
           <div class="content-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
-                <h3>${sec.title}</h3>
-                <button class="tts-btn" onclick="toggleTTS('${sec.text.replace(/'/g, "\\'").replace(/\n/g, " ")}', this)">🔈 Ascultă Lecția</button>
-            </div>
+            <h3>${sec.title}</h3>
             <p>${sec.text}</p>
             <ul>${sec.items.map(item => `<li>${item}</li>`).join('')}</ul>
           </div>
