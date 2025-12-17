@@ -17,7 +17,11 @@ let userProgress = {
 // Load progress
 const savedProgress = localStorage.getItem('userProgress');
 if (savedProgress) {
-    userProgress = JSON.parse(savedProgress);
+    const saved = JSON.parse(savedProgress);
+    userProgress = { ...userProgress, ...saved };
+    // Ensure deep merge for nested objects if necessary, or specific arrays
+    if (!userProgress.medals) userProgress.medals = [];
+    if (!userProgress.tests) userProgress.tests = {};
 }
 
 function saveProgress() {
