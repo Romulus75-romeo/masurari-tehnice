@@ -700,11 +700,17 @@ function showSection(sectionId) {
         const chap = content[sectionId];
         main.innerHTML = `
       <div class="container">
-        <h2>${chap.title}</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+             <h2>${chap.title}</h2>
+             <button class="tts-btn" onclick="toggleTTS('${chap.intro.replace(/'/g, "\\'").replace(/\n/g, " ")}', this)">🔈 Ascultă Intro</button>
+        </div>
         <p style="font-size:1.1rem;margin-bottom:2rem;color:var(--text-secondary)">${chap.intro}</p>
         ${chap.sections.map(sec => `
           <div class="content-card">
-            <h3>${sec.title}</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+                <h3>${sec.title}</h3>
+                <button class="tts-btn" onclick="toggleTTS('${sec.text.replace(/'/g, "\\'").replace(/\n/g, " ")}', this)">🔈 Ascultă Lecția</button>
+            </div>
             <p>${sec.text}</p>
             <ul>${sec.items.map(item => `<li>${item}</li>`).join('')}</ul>
           </div>
@@ -721,6 +727,9 @@ function showSection(sectionId) {
     }
 }
 
+let testTimer = null;
+let testTimeLeft = 0;
+
 function startTest(chapterId) {
     if (!tests[chapterId]) {
         alert('Test indisponibil pentru acest capitol.');
@@ -729,6 +738,29 @@ function startTest(chapterId) {
     currentTest = chapterId;
     currentQuestion = 0;
     userAnswers = [];
+
+    // Timer Setup (e.g., 10 minutes for standard tests, except Quick/Duel which have their own rules)
+    if (chapterId === 'quick' || chapterId === 'duel') {
+        // Handled separately
+    } else {
+        testTimeLeft = 600; // 10 minutes
+        if (testTimer) clearInterval(testTimer);
+        testTimer = setInterval(() => {
+            testTimeLeft--;
+            const el = document.getElementById('testTimerDisplay');
+            if (el) {
+                const m = Math.floor(testTimeLeft / 60);
+                const s = testTimeLeft % 60;
+                el.innerText = `⏱️ ${m}:${s < 10 ? '0' + s : s}`;
+                if (testTimeLeft <= 60) el.style.color = 'var(--danger)';
+            }
+            if (testTimeLeft <= 0) {
+                clearInterval(testTimer);
+                showResults(true); // true = forced end
+            }
+        }, 1000);
+    }
+
     showQuestion();
 }
 
@@ -739,7 +771,10 @@ function showQuestion() {
 
     main.innerHTML = `
     <div class="container">
-      <h2>${test.title}</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2>${test.title}</h2>
+          <div id="testTimerDisplay" style="font-weight:bold;font-size:1.2rem;color:var(--primary)">⏱️ 10:00</div>
+      </div>
       <div class="test-progress">
         <div class="test-progress-bar" style="width:${((currentQuestion + 1) / test.questions.length * 100)}%"></div>
       </div>
@@ -787,7 +822,9 @@ function prevQuestion() {
     }
 }
 
-function showResults() {
+function showResults(forced = false) {
+    if (testTimer) clearInterval(testTimer);
+
     const test = tests[currentTest];
     let score = 0;
     test.questions.forEach((q, i) => {
@@ -1099,24 +1136,57 @@ function showTeacherDashboard() {
     }
 
     const passedTests = Object.values(userProgress.tests).filter(s => s >= 80).length;
+    const totalChapters = chapters.length; // 10
+    const avgScore = Object.values(userProgress.tests).length ? Math.round(Object.values(userProgress.tests).reduce((a, b) => a + b, 0) / Object.values(userProgress.tests).length) : 0;
 
-    showModal('🔐 Panou Profesor', `
-        <table style="width:100%; text-align:left; border-collapse: collapse;">
-            <tr><th>Elev (Local)</th><th>Progres</th><th>Acțiuni</th></tr>
-            <tr>
-                <td>Utilizator Curent</td>
-                <td>${passedTests}/10 Capitole</td>
-                <td><button class="btn btn-danger btn-sm" onclick="resetProgress()">Reset</button></td>
-            </tr>
-        </table>
-        <hr>
-        <h4>🛠️ Unelte Administrare</h4>
-        <button class="btn btn-secondary" onclick="exportData()">💾 Export Situație (JSON)</button>
+    showModal('🔐 Panou Profesor - Administrare', `
+        <div class="teacher-dashboard">
+            <div class="stat-row" style="margin-bottom:2rem">
+                <div class="stat-item">
+                    <b>${passedTests}/${totalChapters}</b> Capitole
+                </div>
+                <div class="stat-item">
+                    <b>${avgScore}%</b> Medie Generală
+                </div>
+                <div class="stat-item">
+                    <b>${userProgress.medals.length}</b> Medalii
+                </div>
+            </div>
+
+            <h4>📋 Catalog Virtual (Date Locale)</h4>
+            <div style="overflow-x:auto; margin-bottom:2rem">
+                <table style="width:100%; text-align:left; border-collapse: collapse; min-width:500px">
+                    <tr style="background:var(--surface-hover)">
+                        <th style="padding:0.5rem">Elev</th>
+                        <th style="padding:0.5rem">C1</th>
+                        <th style="padding:0.5rem">C2</th>
+                        <th style="padding:0.5rem">C3.1</th>
+                        <th style="padding:0.5rem">Final</th>
+                        <th style="padding:0.5rem">Acțiuni</th>
+                    </tr>
+                    <tr>
+                        <td style="padding:0.5rem">Utilizator Curent</td>
+                        <td style="padding:0.5rem">${userProgress.tests['c1'] || '-'}%</td>
+                        <td style="padding:0.5rem">${userProgress.tests['c2'] || '-'}%</td>
+                        <td style="padding:0.5rem">${userProgress.tests['c3-1'] || '-'}%</td>
+                        <td style="padding:0.5rem"><b>${userProgress.tests['final'] || '-'}%</b></td>
+                        <td style="padding:0.5rem">
+                            <button class="btn btn-danger btn-sm" onclick="resetProgress()">Reset</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem">
+                <button class="btn btn-primary" onclick="exportResultsToCSV()">📥 Export Catalog CSV (Excel)</button>
+                <button class="btn btn-secondary" onclick="exportData()">💾 Backup Date (JSON)</button>
+            </div>
+        </div>
     `);
 }
 
 function resetProgress() {
-    if (confirm('Sigur doriți să ștergeți tot progresul?')) {
+    if (confirm('ATENȚIE: Această acțiune va șterge TOATE datele elevului curent! Continuăm?')) {
         localStorage.removeItem('userProgress');
         location.reload();
     }
@@ -1126,10 +1196,51 @@ function exportData() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userProgress));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "progres_elev.json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.setAttribute("download", "backup_masurari_tehnice.json");
+    document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+}
+
+function exportResultsToCSV() {
+    // Basic CSV structure mimicking a class export
+    const headers = ['Nume Elev', 'Data', 'Capitole Promovate', 'Medie', 'C1', 'C2', 'C3.1', 'C3.2', 'C3.3', 'C3.4', 'C3.5', 'C3.6', 'C3.7', 'C3.8', 'Examen Final'];
+
+    // Calculate data
+    const passed = Object.values(userProgress.tests).filter(s => s >= 80).length;
+    const total = Object.values(userProgress.tests).reduce((a, b) => a + b, 0);
+    const count = Object.values(userProgress.tests).length;
+    const avg = count ? Math.round(total / count) : 0;
+
+    const row = [
+        'Utilizator Curent',
+        new Date().toLocaleDateString('ro-RO'),
+        `${passed}/10`,
+        `${avg}%`,
+        userProgress.tests['c1'] || 0,
+        userProgress.tests['c2'] || 0,
+        userProgress.tests['c3-1'] || 0,
+        userProgress.tests['c3-2'] || 0,
+        userProgress.tests['c3-3'] || 0,
+        userProgress.tests['c3-4'] || 0,
+        userProgress.tests['c3-5'] || 0,
+        userProgress.tests['c3-6'] || 0,
+        userProgress.tests['c3-7'] || 0,
+        userProgress.tests['c3-8'] || 0,
+        userProgress.tests['final'] || 0
+    ];
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+        + headers.join(",") + "\n"
+        + row.join(",");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "catalog_masurari_tehnice.csv");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 }
 
 // ========== INITIALIZATION ==========
@@ -1150,3 +1261,389 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('offlineStatus').innerHTML = '🔴 Offline';
     });
 });
+
+// ========== CHATBOT IMPLEMENTATION ==========
+const chatBotData = {
+    keywords: {
+        'subler': 'Șublerul este principalul instrument de măsurare a lungimilor. Are o precizie de 0.1, 0.05 sau 0.02 mm. Se citește valoarea de pe riglă + valoarea de pe vernier.',
+        'micrometru': 'Micrometrul este un instrument de precizie (0.01 mm). Se bazează pe șurubul micrometric. Citirea se face pe tubul fix (mm și 0.5mm) și tambur (sutimi).',
+        'comparator': 'Comparatorul măsoară abaterile față de un etalon. Are un cadran gradat și un palpator. Fiecare diviziune este de obicei 0.01 mm.',
+        'nssm': 'Siguranța muncii este vitală! Purtați EIP, nu măsurați piese în mișcare, curățați instrumentele și verificați calibrarea periodic.',
+        'temperatura': 'Temperatura standard de măsurare este 20°C. Variațiile duc la dilatări/contractări termice care falsifică rezultatul.',
+        'eroare': 'Eroarea este diferența dintre valoarea măsurată și cea reală. Poate fi sistematică (constantă) sau întâmplătoare (variabilă).',
+        'filet': 'Filetele se verifică cu calibre (Trece/Nu Trece) sau se măsoară diametrul mediu cu micrometrul de filete.',
+        'rugozitate': 'Rugozitatea (Ra) reprezintă neregularitățile suprafeței. Se măsoară în micrometri (μm) cu rugozimetrul.',
+        'electric': 'Multimetrul măsoară U (volți - paralel), I (amperi - serie), R (ohmi - fără tensiune). Atenție la electrocutare!',
+        'promovare': 'Pentru a promova ai nevoie de minim 80% la fiecare test și la examenul final. Vei primi un certificat PDF.'
+    },
+    default: 'Sunt asistentul tău virtual pentru Măsurări Tehnice. Întreabă-mă despre șublere, micrometre, toleranțe, formule sau siguranță (NSSM).'
+};
+
+function showChatBot() {
+    closeMenu();
+    showModal('🤖 Asistent Virtual', `
+        <div class="chatbot-container">
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="chat-message bot">Salut! Sunt asistentul tău tehnic. Cu ce te pot ajuta azi?</div>
+                <div class="chat-suggestions">
+                    <div class="chat-suggestion" onclick="sendQuery('Cum citesc șublerul?')">Șubler?</div>
+                    <div class="chat-suggestion" onclick="sendQuery('Ce este NSSM?')">NSSM?</div>
+                    <div class="chat-suggestion" onclick="sendQuery('Erori de măsurare')">Erori?</div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Scrie întrebarea ta..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    `);
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    appendMessage(msg, 'user');
+    input.value = '';
+
+    // Simulate thinking
+    setTimeout(() => {
+        const response = generateBotResponse(msg);
+        appendMessage(response, 'bot');
+    }, 500);
+}
+
+function sendQuery(text) {
+    appendMessage(text, 'user');
+    setTimeout(() => {
+        const response = generateBotResponse(text);
+        appendMessage(response, 'bot');
+    }, 500);
+}
+
+function appendMessage(text, type) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = `chat-message ${type}`;
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function generateBotResponse(input) {
+    input = input.toLowerCase();
+
+    for (const [key, value] of Object.entries(chatBotData.keywords)) {
+        if (input.includes(key)) return value;
+    }
+    return chatBotData.default;
+}
+
+// ========== TEXT-TO-SPEECH IMPLEMENTATION ==========
+let ttsUtterance = null;
+let currentTTSBtn = null;
+
+function toggleTTS(text, btn) {
+    const synth = window.speechSynthesis;
+
+    // If clicking a different button, stop current and start new
+    if (currentTTSBtn && currentTTSBtn !== btn) {
+        stopTTS();
+    }
+
+    // Initialize or Resume/Pause
+    if (!ttsUtterance || currentTTSBtn !== btn) {
+        // Start new speech
+        stopTTS(); // Ensure clean slate
+        ttsUtterance = new SpeechSynthesisUtterance(text);
+        ttsUtterance.lang = 'ro-RO';
+        ttsUtterance.rate = 1.0;
+
+        ttsUtterance.onend = () => {
+            btn.innerHTML = '🔈 Ascultă Lecția';
+            btn.classList.remove('active', 'paused');
+            currentTTSBtn = null;
+            ttsUtterance = null;
+        };
+
+        ttsUtterance.onerror = () => {
+            btn.innerHTML = '🔈 Ascultă Lecția';
+            btn.classList.remove('active', 'paused');
+        };
+
+        synth.speak(ttsUtterance);
+        currentTTSBtn = btn;
+        btn.innerHTML = '⏸️ Pauză';
+        btn.classList.add('active');
+
+        // Inject Stop Button if not exists
+        let stopBtn = btn.nextElementSibling;
+        if (!stopBtn || !stopBtn.classList.contains('tts-stop-btn')) {
+            stopBtn = document.createElement('button');
+            stopBtn.className = 'btn btn-secondary btn-sm tts-stop-btn';
+            stopBtn.innerText = '⏹️ Stop';
+            stopBtn.style.marginLeft = '0.5rem';
+            stopBtn.onclick = () => stopTTS();
+            btn.parentNode.insertBefore(stopBtn, btn.nextSibling);
+        }
+        stopBtn.style.display = 'inline-block';
+
+    } else {
+        // Toggle Pause/Resume on same button
+        if (synth.paused) {
+            synth.resume();
+            btn.innerHTML = '⏸️ Pauză';
+            btn.classList.remove('paused');
+        } else {
+            synth.pause();
+            btn.innerHTML = '▶️ Continuă';
+            btn.classList.add('paused');
+        }
+    }
+}
+
+function stopTTS() {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    ttsUtterance = null;
+
+    // Reset UI
+    if (currentTTSBtn) {
+        currentTTSBtn.innerHTML = '🔈 Ascultă Lecția';
+        currentTTSBtn.classList.remove('active', 'paused');
+
+        const stopBtn = currentTTSBtn.nextElementSibling;
+        if (stopBtn && stopBtn.classList.contains('tts-stop-btn')) {
+            stopBtn.style.display = 'none';
+        }
+        currentTTSBtn = null;
+    }
+
+    // Safety cleanup for all buttons
+    document.querySelectorAll('.tts-btn').forEach(b => {
+        b.innerHTML = '🔈 Ascultă Lecția';
+        b.classList.remove('active', 'paused');
+    });
+    document.querySelectorAll('.tts-stop-btn').forEach(b => b.remove());
+}
+
+// ========== GAMIFICATION IMPLEMENTATION ==========
+
+// --- DUEL MODE ---
+let duelScore = { p1: 0, p2: 0 };
+let duelQuestions = [];
+let duelCurrentQ = 0;
+
+function showDuelSetup() {
+    closeMenu();
+    showModal('⚔️ Mod Duel', `
+        <div class="duel-setup">
+            <p>Provoacă un coleg sau joacă împotriva calculatorului!</p>
+            <div class="duel-avatar-select">
+                <div class="avatar-option selected" onclick="selectAvatar(this, 1)">👨‍🎓</div>
+                <div class="avatar-option" onclick="selectAvatar(this, 2)">👩‍🎓</div>
+                <div class="avatar-option" onclick="selectAvatar(this, 3)">🤖</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1rem; max-width:300px; margin:0 auto">
+                <button class="btn btn-primary" onclick="startDuel('bot')">🤖 vs Bot (Antrenament)</button>
+                <button class="btn btn-secondary" onclick="startDuel('local')">👥 vs Coleg (Local)</button>
+            </div>
+        </div>
+    `);
+}
+
+function selectAvatar(el, id) {
+    document.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function startDuel(mode) {
+    // Setup Duel
+    duelScore = { p1: 0, p2: 0 };
+    duelCurrentQ = 0;
+
+    // Get random 5 questions
+    const allQs = [];
+    Object.values(tests).forEach(t => allQs.push(...t.questions));
+    duelQuestions = allQs.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+    showDuelQuestion(mode);
+}
+
+function showDuelQuestion(mode) {
+    if (duelCurrentQ >= duelQuestions.length) {
+        showDuelResults(mode);
+        return;
+    }
+
+    const q = duelQuestions[duelCurrentQ];
+
+    showModal(`⚔️ Duel - Întrebarea ${duelCurrentQ + 1}/5`, `
+        <div class="duel-arena">
+            <div class="duel-player">
+                <span class="player-avatar">You</span>
+                <span class="player-score" id="scoreP1">${duelScore.p1}</span>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="duel-player">
+                <span class="player-avatar">${mode === 'bot' ? '🤖' : 'P2'}</span>
+                <span class="player-score" id="scoreP2">${duelScore.p2}</span>
+            </div>
+        </div>
+        <div class="question-card">
+            <p class="question-text">${q.q}</p>
+            <div class="options-list">
+                ${q.a.map((ans, idx) => `
+                    <div class="option" onclick="handleDuelAnswer(${idx}, ${q.c}, '${mode}')">
+                        <div class="option-marker">${String.fromCharCode(65 + idx)}</div>
+                        <div>${ans}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `);
+}
+
+function handleDuelAnswer(idx, correct, mode) {
+    // Player 1 Logic
+    if (idx === correct) duelScore.p1 += 100;
+
+    // Opponent Logic
+    if (mode === 'bot') {
+        // Bot has 70% accuracy
+        if (Math.random() > 0.3) duelScore.p2 += 100;
+    } else {
+        // Local multiplayer
+        if (Math.random() > 0.5) duelScore.p2 += 100;
+    }
+
+    duelCurrentQ++;
+    setTimeout(() => showDuelQuestion(mode), 500);
+}
+
+function showDuelResults(mode) {
+    const win = duelScore.p1 > duelScore.p2;
+    const tie = duelScore.p1 === duelScore.p2;
+    let msg = win ? '🎉 Ai Câștigat!' : (tie ? '🤝 Egalitate!' : '😔 Ai Pierdut!');
+
+    showModal('🏁 Rezultat Duel', `
+        <div class="text-center">
+            <h2>${msg}</h2>
+            <div class="duel-arena" style="justify-content:center; gap:2rem">
+                <div class="duel-player">
+                    <span class="player-avatar">You</span>
+                    <span class="player-score">${duelScore.p1}</span>
+                </div>
+                <div class="duel-player">
+                    <span class="player-avatar">${mode === 'bot' ? '🤖' : 'P2'}</span>
+                    <span class="player-score">${duelScore.p2}</span>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="showDuelSetup()">🔄 Joacă din nou</button>
+        </div>
+    `);
+}
+
+// --- DAILY CHALLENGE ---
+function showDailyChallenge() {
+    closeMenu();
+
+    // Deterministic random based on date
+    const dateStr = new Date().toDateString();
+    let seed = 0;
+    for (let i = 0; i < dateStr.length; i++) seed += dateStr.charCodeAt(i);
+
+    const allQs = [];
+    Object.values(tests).forEach(t => allQs.push(...t.questions));
+    const dayQ = allQs[seed % allQs.length];
+
+    showModal('📅 Provocarea Zilei', `
+        <div class="text-center">
+            <div class="daily-challenge-badge">XP Dublu!</div>
+            <h3>${dayQ.q}</h3>
+            <div class="options-list text-left" style="margin-top:1.5rem">
+                ${dayQ.a.map((ans, idx) => `
+                    <div class="option" onclick="${idx === dayQ.c ? 'alert(\'🎉 Corect! +200 XP\'); this.classList.add(\'correct\')' : 'alert(\'❌ Greșit!\'); this.classList.add(\'incorrect\')'}">
+                        <div class="option-marker">${String.fromCharCode(65 + idx)}</div>
+                        <div>${ans}</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `);
+}
+
+// --- SPEED TEST ---
+let speedTimer = null;
+let speedTimeLeft = 60;
+let speedScore = 0;
+
+function startSpeedTest() {
+    closeMenu();
+    speedTimeLeft = 60;
+    speedScore = 0;
+
+    // Get 20 random questions
+    const allQs = [];
+    Object.values(tests).forEach(t => allQs.push(...t.questions));
+    const speedQs = allQs.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+    runSpeedQuestion(speedQs, 0);
+}
+
+function runSpeedQuestion(qs, idx) {
+    if (idx >= qs.length || speedTimeLeft <= 0) {
+        endSpeedTest();
+        return;
+    }
+
+    if (idx === 0) {
+        // Start Timer
+        speedTimer = setInterval(() => {
+            speedTimeLeft--;
+            const el = document.getElementById('speedTimerDisplay');
+            if (el) el.innerText = speedTimeLeft;
+            if (speedTimeLeft <= 0) {
+                clearInterval(speedTimer);
+                endSpeedTest();
+            }
+        }, 1000);
+    }
+
+    const q = qs[idx];
+    showModal(`⚡ Speed Test (${idx + 1}/${qs.length})`, `
+        <div class="speed-test-timer" id="speedTimerDisplay">${speedTimeLeft}</div>
+        <p class="question-text">${q.q}</p>
+        <div class="options-list">
+            ${q.a.map((ans, aIdx) => `
+                <div class="option" onclick="handleSpeedAnswer(${aIdx}, ${q.c}, ${idx}, '${qs.map(x => x.q).join('|').replace(/'/g, "\\'")}')">
+                    <div class="option-marker">${String.fromCharCode(65 + aIdx)}</div>
+                    <div>${ans}</div>
+                </div>
+            `).join('')}
+        </div>
+    `);
+
+    // Re-bind click to avoid serialization issues
+    window.currentSpeedQs = qs;
+    window.currentSpeedIdx = idx;
+}
+
+window.handleSpeedAnswer = function (aIdx, correct) {
+    if (aIdx === correct) speedScore++;
+    window.currentSpeedIdx++;
+    runSpeedQuestion(window.currentSpeedQs, window.currentSpeedIdx);
+};
+
+function endSpeedTest() {
+    clearInterval(speedTimer);
+    showModal('⚡ Rezultat Speed Test', `
+        <div class="text-center">
+            <h2>Timp Expirat!</h2>
+            <div class="result-score">${speedScore}</div>
+            <p>Răspunsuri corecte într-un minut.</p>
+            <button class="btn btn-primary" onclick="startSpeedTest()">🔄 Încearcă din nou</button>
+        </div>
+    `);
+}
