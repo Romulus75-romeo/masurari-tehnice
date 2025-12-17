@@ -697,6 +697,7 @@ function showSection(sectionId) {
       </div>
     `;
     } else if (content[sectionId]) {
+        const chap = content[sectionId];
         // Construct full text for TTS
         let fullText = `${chap.title}. ${chap.intro}. `;
         chap.sections.forEach(sec => {
