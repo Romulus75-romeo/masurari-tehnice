@@ -575,7 +575,7 @@ const tests = {
 function showSection(sectionId) {
     currentSection = sectionId;
     const main = document.getElementById('mainContent');
-  closeMen u();
+    closeMenu();
 
     if (sectionId === 'home') {
         main.innerHTML = `
