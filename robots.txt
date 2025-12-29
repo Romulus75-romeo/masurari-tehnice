@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://romulus75-romeo.github.io/masurari-tehnice/sitemap.xml
+
+# Platformă educațională pentru Măsurări Tehnice
+# Liceul Tehnologic "Aurel Vlaicu" Galați
