@@ -1820,3 +1820,107 @@ function openWorksheet(id) {
     `);
     w.document.close();
 }
+
+// ========== VIDEOURI YOUTUBE TUTORIALE ==========
+const youtubeVideos = {
+    'c1': [ // Noțiuni Fundamentale
+        { id: 'fBdZa1yQxzE', title: 'Teoria Măsurătorilor - Introducere', channel: 'Metrologie RO' },
+        { id: 'K5D8RxqH9EE', title: 'Sistemul Internațional de Unități (SI)', channel: 'Fizică PRO' }
+    ],
+    'c2': [ // Precizia Prelucrării
+        { id: 'jlsqj8rxXUQ', title: 'Toleranțe și Ajustaje - Explicație', channel: 'Mecanică Aplicată' },
+        { id: 'v8Pq7KLHQW0', title: 'Rugozitate și Calitate Suprafețe', channel: 'Tehnic Expert' }
+    ],
+    'c3-1': [ // Șubler
+        { id: 'WlE6aFvPBDw', title: 'Cum se folosește șublerul - Tutorial Complet', channel: 'Atelier RO' },
+        { id: 'qLxoKpI-69I', title: 'Citirea șublerului cu vernier 0.02 mm', channel: 'Metrologie PRO' },
+        { id: 'Fg7HHPmepec', title: 'Șubler digital vs mecanic - Comparație', channel: 'Măsurări Tehnice' }
+    ],
+    'c3-2': [ // Micrometru
+        { id: 'NJdqjL7kv-c', title: 'Măsurarea cu micrometrul - Pas cu Pas', channel: 'Control Calitate' },
+        { id: 'usRAL7bDfuA', title: 'Cum se citește micrometrul 0.01 mm', channel: 'Metrologie RO' },
+        { id: '7A2TnZ5z5d4', title: 'Calibrare micrometru - Verificare zero', channel: 'Precizie RO' }
+    ],
+    'c3-3': [ // Cale Plan-Paralele
+        { id: 'RMn_1xLKrGk', title: 'Cale plan-paralele - Utilizare', channel: 'Metrologie Industrială' },
+        { id: '8sKZo5z5_Xs', title: 'Blocuri Etalon Johansson', channel: 'Măsurători PRO' }
+    ],
+    'c3-4': [ // Calibre
+        { id: 'pL5sqoqZ_9A', title: 'Calibre Trece-Nu Trece - Utilizare', channel: 'Control Dimensional' },
+        { id: 'mXsB5jRz-K0', title: 'Calibre pentru filete - Verificare', channel: 'Filetare RO' }
+    ],
+    'c3-5': [ // Comparatoare
+        { id: 'VBKp_a-i8pw', title: 'Comparator cu cadran - Tutorial', channel: 'Măsurări Precise' },
+        { id: 'D_7RfNZo_yE', title: 'Măsurare bătaie radială cu comparator', channel: 'Mecanică Auto' }
+    ],
+    'c3-6': [ // Goniometre
+        { id: 'ZHxJw4Rt4uo', title: 'Măsurarea unghiurilor - Goniometru', channel: 'Geometrie Aplicată' },
+        { id: 'Bx3fz7oK8Ks', title: 'Raportor universal - Utilizare', channel: 'Atelier Mecanic' }
+    ],
+    'c3-7': [ // Rugozitate
+        { id: 'kLqXZ8bFV2M', title: 'Rugozimetru - Măsurare Ra și Rz', channel: 'Suprafețe PRO' },
+        { id: 'Q9m5uE8z_fc', title: 'Mostre etalon rugozitate - Comparare', channel: 'Control Calitate' }
+    ],
+    'c3-8': [ // Mărimi Electrice
+        { id: 'CBTqdI1r-8o', title: 'Multimetru digital - Tutorial Complet', channel: 'Electronica RO' },
+        { id: 'dHA7NzLxZ6g', title: 'Cum se măsoară tensiunea și curentul', channel: 'Electric PRO' },
+        { id: 'SLn4_m8r_UQ', title: 'Măsurarea rezistenței cu ohmetrul', channel: 'Instalații Electrice' }
+    ]
+};
+
+function showVideoTutorials(chapterId) {
+    const videos = youtubeVideos[chapterId];
+    if (!videos || videos.length === 0) {
+        alert('Nu sunt disponibile videouri pentru acest capitol.');
+        return;
+    }
+
+    const ch = chapters.find(c => c.id === chapterId);
+
+    document.getElementById('mainContent').innerHTML = `
+    <div class="container">
+      <button class="btn btn-secondary back-btn" onclick="showSection('${chapterId}')">← Înapoi la ${ch?.title || 'Capitol'}</button>
+      <div class="section-header">
+        <h2>🎬 Tutoriale Video - ${ch?.title || ''}</h2>
+        <p>Videouri educaționale de pe YouTube</p>
+      </div>
+      
+      <div class="section-grid">
+        ${videos.map((v, i) => `
+          <div class="card" style="cursor:pointer" onclick="playVideo('${v.id}', '${v.title.replace(/'/g, "\\'")}')">
+            <div style="position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center">
+              <img src="https://img.youtube.com/vi/${v.id}/mqdefault.jpg" alt="${v.title}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+              <div style="position:absolute;background:rgba(255,0,0,0.9);padding:0.5rem 1rem;border-radius:8px">
+                <span style="color:white;font-size:1.5rem">▶</span>
+              </div>
+            </div>
+            <div class="card-title" style="margin-top:0.75rem;font-size:0.95rem">${v.title}</div>
+            <div style="color:var(--text-muted);font-size:0.85rem">${v.channel}</div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div id="videoPlayer" style="display:none;margin-top:2rem">
+        <h3 id="videoTitle"></h3>
+        <iframe id="videoFrame" width="100%" height="400" style="border-radius:12px;border:none" allowfullscreen></iframe>
+        <button class="btn btn-secondary mt-3" onclick="closeVideo()">✕ Închide Video</button>
+      </div>
+    </div>`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function playVideo(videoId, title) {
+    const player = document.getElementById('videoPlayer');
+    const frame = document.getElementById('videoFrame');
+    frame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    document.getElementById('videoTitle').textContent = title;
+    player.style.display = 'block';
+    player.scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeVideo() {
+    document.getElementById('videoFrame').src = '';
+    document.getElementById('videoPlayer').style.display = 'none';
+}
+
+console.log('🎬 Tutoriale video încărcate pentru Măsurări Tehnice!');
