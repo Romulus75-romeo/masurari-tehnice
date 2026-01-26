@@ -738,8 +738,9 @@ function showSection(sectionId) {
           <h4>⚠️ Norme NSSM</h4>
           <p>${chap.nssm}</p>
         </div>
-        <div class="text-center" style="margin-top:2rem">
+        <div class="text-center" style="margin-top:2rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-primary btn-lg" onclick="startTest('${sectionId}')">📝 Începe Testul</button>
+          <button class="btn btn-secondary btn-lg" onclick="showVideoTutorials('${sectionId}')" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none">🎬 Tutoriale Video</button>
         </div>
       </div>
     `;
