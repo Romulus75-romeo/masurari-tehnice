@@ -1952,9 +1952,9 @@ function showWorksheets() {
                             <button class="btn btn-primary" onclick="printWorksheet('${w.file}')">
                                 🖨️ Printează
                             </button>
-                            <a href="${w.file}" target="_blank" class="btn btn-secondary" style="text-decoration:none">
+                            <button class="btn btn-secondary" onclick="viewWorksheet('${w.file}', '${w.title}')">
                                 📄 Vezi
-                            </a>
+                            </button>
                         </div>
                     </div>
                 `).join('')}
@@ -1970,7 +1970,49 @@ function showWorksheets() {
                 </ul>
             </div>
         </div>
+        
+        <!-- Modal pentru vizualizare fișă -->
+        <div id="worksheetModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;overflow:auto">
+            <div style="position:relative;max-width:900px;margin:20px auto;background:white;border-radius:12px;overflow:hidden">
+                <div style="padding:1rem;background:var(--primary);color:white;display:flex;justify-content:space-between;align-items:center">
+                    <h3 id="worksheetModalTitle" style="margin:0;color:white"></h3>
+                    <button onclick="closeWorksheetModal()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;padding:0.5rem">✕</button>
+                </div>
+                <iframe id="worksheetFrame" style="width:100%;height:80vh;border:none"></iframe>
+                <div style="padding:1rem;text-align:center;background:#f3f4f6">
+                    <button class="btn btn-primary" onclick="printCurrentWorksheet()">🖨️ Printează</button>
+                    <button class="btn btn-secondary" onclick="closeWorksheetModal()" style="margin-left:0.5rem">Închide</button>
+                </div>
+            </div>
+        </div>
     `;
+}
+
+function viewWorksheet(file, title) {
+    const modal = document.getElementById('worksheetModal');
+    const frame = document.getElementById('worksheetFrame');
+    const titleEl = document.getElementById('worksheetModalTitle');
+
+    frame.src = file;
+    titleEl.textContent = title;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeWorksheetModal() {
+    const modal = document.getElementById('worksheetModal');
+    const frame = document.getElementById('worksheetFrame');
+
+    modal.style.display = 'none';
+    frame.src = '';
+    document.body.style.overflow = 'auto';
+}
+
+function printCurrentWorksheet() {
+    const frame = document.getElementById('worksheetFrame');
+    if (frame && frame.contentWindow) {
+        frame.contentWindow.print();
+    }
 }
 
 function printWorksheet(file) {
