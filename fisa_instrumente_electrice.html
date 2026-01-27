@@ -72,16 +72,47 @@
             color: #999;
         }
 
+        .close-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .close-btn:hover {
+            background: #3730a3;
+            transform: scale(1.1);
+        }
+
         @media print {
             body {
                 margin: 0;
                 padding: 15mm;
+            }
+
+            .close-btn {
+                display: none;
             }
         }
     </style>
 </head>
 
 <body>
+    <button class="close-btn" onclick="window.close()" title="Închide">&times;</button>
     <h1>FIȘĂ DE LUCRU - INSTRUMENTE ELECTRICE DE MĂSURĂ</h1>
     <div class="header">
         <p><strong>Liceul Tehnologic "Aurel Vlaicu" Galați</strong></p>
