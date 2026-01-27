@@ -1940,7 +1940,7 @@ function showWorksheets() {
     main.innerHTML = `
         <div class="container">
             <h2>📋 Fișe de Lucru Printabile</h2>
-            <p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:2rem">Fișe de lucru pentru exersare practică. Pot fi descărcate și printate pentru completare manuală.</p>
+            <p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:2rem">Fișe de lucru pentru exersare practică. Click pe "🖨️ Printează" pentru a printa direct.</p>
             
             <div class="section-grid">
                 ${worksheets.map(w => `
@@ -1948,9 +1948,12 @@ function showWorksheets() {
                         <div class="card-icon"></div>
                         <h3 class="card-title">${w.title}</h3>
                         <p class="card-description">${w.desc}</p>
-                        <div class="card-meta">
-                            <a href="${w.file}" target="_blank" class="btn btn-primary" style="text-decoration:none">
-                                📄 Deschide Fișa
+                        <div class="card-meta" style="display:flex;gap:0.5rem;justify-content:center">
+                            <button class="btn btn-primary" onclick="printWorksheet('${w.file}')">
+                                🖨️ Printează
+                            </button>
+                            <a href="${w.file}" target="_blank" class="btn btn-secondary" style="text-decoration:none">
+                                📄 Vezi
                             </a>
                         </div>
                     </div>
@@ -1960,8 +1963,8 @@ function showWorksheets() {
             <div class="info-box" style="margin-top:2rem">
                 <h4>💡 Cum se folosesc fișele?</h4>
                 <ul>
-                    <li>Click pe "Deschide Fișa" pentru a vedea fișa în browser</li>
-                    <li>Folosiți <strong>Ctrl+P</strong> (sau Cmd+P pe Mac) pentru a printa</li>
+                    <li>Click pe <strong>"🖨️ Printează"</strong> pentru a deschide direct dialogul de printare</li>
+                    <li>Sau click pe "📄 Vezi" pentru a vizualiza fișa înainte de printare</li>
                     <li>Fișele sunt optimizate pentru format A4</li>
                     <li>Completați manual exercițiile pentru exersare</li>
                 </ul>
@@ -1970,3 +1973,18 @@ function showWorksheets() {
     `;
 }
 
+function printWorksheet(file) {
+    // Deschide fișa într-un iframe ascuns și printează
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = file;
+    document.body.appendChild(iframe);
+
+    iframe.onload = function () {
+        setTimeout(() => {
+            iframe.contentWindow.print();
+            // Șterge iframe-ul după 1 secundă
+            setTimeout(() => document.body.removeChild(iframe), 1000);
+        }, 500);
+    };
+}
