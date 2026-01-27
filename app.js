@@ -1925,3 +1925,48 @@ function closeVideo() {
 }
 
 console.log('🎬 Tutoriale video încărcate pentru Măsurări Tehnice!');
+
+// ========== WORKSHEETS FUNCTION ==========
+function showWorksheets() {
+    const main = document.getElementById('mainContent');
+    closeMenu();
+
+    const worksheets = [
+        { title: '📏 Fișa Șubler', desc: 'Părțile componente, citirea noniusului, tipuri de măsurători', file: 'fisa_subler.html' },
+        { title: '🔬 Fișa Micrometru', desc: 'Componente, citire tambur, calcul eroare, verificare zero', file: 'fisa_micrometru.html' },
+        { title: '⚡ Fișa Instrumente Electrice', desc: 'Multimetru, voltmetru, ampermetru, cod culori rezistoare', file: 'fisa_instrumente_electrice.html' }
+    ];
+
+    main.innerHTML = `
+        <div class="container">
+            <h2>📋 Fișe de Lucru Printabile</h2>
+            <p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:2rem">Fișe de lucru pentru exersare practică. Pot fi descărcate și printate pentru completare manuală.</p>
+            
+            <div class="section-grid">
+                ${worksheets.map(w => `
+                    <div class="card">
+                        <div class="card-icon"></div>
+                        <h3 class="card-title">${w.title}</h3>
+                        <p class="card-description">${w.desc}</p>
+                        <div class="card-meta">
+                            <a href="${w.file}" target="_blank" class="btn btn-primary" style="text-decoration:none">
+                                📄 Deschide Fișa
+                            </a>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="info-box" style="margin-top:2rem">
+                <h4>💡 Cum se folosesc fișele?</h4>
+                <ul>
+                    <li>Click pe "Deschide Fișa" pentru a vedea fișa în browser</li>
+                    <li>Folosiți <strong>Ctrl+P</strong> (sau Cmd+P pe Mac) pentru a printa</li>
+                    <li>Fișele sunt optimizate pentru format A4</li>
+                    <li>Completați manual exercițiile pentru exersare</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
