@@ -5,6 +5,8 @@ let currentQuestion = 0;
 let userAnswers = [];
 let soundEnabled = true;
 let darkMode = false;
+let currentStudent = null;
+let pendingCallback = null;
 
 // ========== PERSISTENT STATE ==========
 let userProgress = {
@@ -751,6 +753,16 @@ let testTimer = null;
 let testTimeLeft = 0;
 
 function startTest(chapterId) {
+    if (!currentStudent) {
+        const saved = localStorage.getItem('currentStudent');
+        if (saved) {
+            currentStudent = JSON.parse(saved);
+        } else {
+            promptStudentIdentity(() => startTest(chapterId));
+            return;
+        }
+    }
+
     if (!tests[chapterId]) {
         alert('Test indisponibil pentru acest capitol.');
         return;
@@ -858,6 +870,9 @@ function showResults(forced = false) {
         saveProgress();
         checkMedals();
     }
+    
+    // Send email to teacher
+    sendResultEmail(test.title, percentage, score, test.questions.length - score);
 
     const main = document.getElementById('mainContent');
     main.innerHTML = `
@@ -910,6 +925,64 @@ function toggleSound() {
 
 
 // ========== NEW FEATURES IMPLEMENTATION ==========
+
+function promptStudentIdentity(callback) {
+    pendingCallback = callback;
+    showModal('👤 Identificare Elev', `
+        <div style="text-align:left; max-width: 400px; margin: 0 auto;">
+            <p>Înainte de a începe, te rugăm să introduci datele tale pentru a trimite rezultatul domnului profesor.</p>
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:bold;">Nume și Prenume:</label>
+                <input type="text" id="studentName" class="search-input" placeholder="ex: Popescu Andrei">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display:block; margin-bottom:0.5rem; font-weight:bold;">Clasa:</label>
+                <input type="text" id="studentClass" class="search-input" placeholder="ex: 10 A">
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="saveStudentIdentity()">Salvează și Începe</button>
+        </div>
+    `);
+}
+
+window.saveStudentIdentity = function() {
+    const name = document.getElementById('studentName').value.trim();
+    const cls = document.getElementById('studentClass').value.trim();
+    if (!name || !cls) {
+        alert("Te rugăm să completezi ambele câmpuri!");
+        return;
+    }
+    currentStudent = { name, class: cls };
+    localStorage.setItem('currentStudent', JSON.stringify(currentStudent));
+    document.querySelector('.modal-overlay').remove();
+    if(pendingCallback) {
+        let cb = pendingCallback;
+        pendingCallback = null;
+        cb();
+    }
+};
+
+function sendResultEmail(testName, percentage, correct, wrong) {
+    if (!currentStudent) return;
+    const url = "https://formsubmit.co/ajax/romii197575@gmail.com";
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            "Elev": currentStudent.name,
+            "Clasa": currentStudent.class,
+            "Test_Efectuat": testName,
+            "Nota_Procentuala": percentage + "%",
+            "Raspunsuri_Corecte": correct,
+            "Raspunsuri_Gresite": wrong,
+            "Data_Ora": new Date().toLocaleString('ro-RO'),
+            "_subject": "Rezultat Nou: " + currentStudent.name + " - " + testName
+        })
+    }).then(res => console.log('Result sent to teacher'))
+      .catch(err => console.error('Error sending result:', err));
+}
 
 function showModal(title, contentHTML) {
     const main = document.getElementById('mainContent');
